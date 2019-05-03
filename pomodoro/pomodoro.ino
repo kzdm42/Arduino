@@ -1,6 +1,7 @@
 #include <MsTimer2.h>
-const int LED = 12; //LEDをデジタルピン13に接続
-const int RESET_LED = 13; //LEDをデジタルピン13に接続
+#include <MultiFuncShield.h>
+//const int LED = 12; //LEDをデジタルピン13に接続
+//const int RESET_LED = 13; //LEDをデジタルピン13に接続
 const int BUTTON = A1; // ボタンをデジタルピン7に接続
 const int RESET_BUTTON = A3; // ボタンをデジタルピン7に接続
  
@@ -8,28 +9,29 @@ int val = 0; //ボタンの状態
 int old_val = 0; //valの前の値を保存しておく変数
 int state = 0;   // LEDの状態を保存しておく変数
 int wait = 0; 
-int pomodoro_max_count = 1500;
+int pomodoro_max_count = 90;
 
 int rval = 0;
 int rold_val = 0; //valの前の値を保存しておく変数
 int rstate = 0;   // LEDの状態を保存しておく変数
 
 int count = 0;
-// 7 LED
-/////////////////////////////////////////////////
-const byte digit[10] = //7seg 点灯パターン
-{
-  B00000011, // 数字 0
-  B10011111, // 1
-  B00100101, // 2
-  B00001101, // 3
-  B10011001, // 4
-  B01001001, // 5
-  B01000001, // 6
-  B00011011, // 7
-  B00000001, // 8
-  B00001001  // 9
-};
+int dispcount = 0;
+
+int mm = 0;
+int ss = 0;
+String string_mm = "0";
+String string_ss = "0";
+float result = 0 ;
+
+// digit display
+/////////////////////////////////////
+void digit(){
+  Timer1.initialize();
+  MFS.initialize(&Timer1);    // initialize multi-function shield library
+  
+  MFS.write("Hi");
+}
 
 
 
@@ -37,15 +39,15 @@ const byte digit[10] = //7seg 点灯パターン
 //////////////////////////////////////////////
 
 void setup() {
-  pinMode(LED,OUTPUT); //LED変数は出力に
+  //pinMode(LED,OUTPUT); //LED変数は出力に
   pinMode(BUTTON, INPUT); // ボタン変数は入力に
   Serial.begin(9600);
 
   MsTimer2::set(1000, flash); // 500msの期間
   MsTimer2::start();
+  digit();
 }
  
-
 // reset処理
 //////////////////////////////////////////////
 void reset (){
@@ -63,7 +65,7 @@ void reset (){
 
      //stateに応じてLEDを点灯。
      if(rstate==0){
-       digitalWrite(RESET_LED,HIGH);
+       //digitalWrite(RESET_LED,HIGH);
        count = 0;
        rval = 0;
        rstate = 1;
@@ -71,9 +73,10 @@ void reset (){
       val = 0;
       old_val = 0;
       wait = 0;
+      MFS.write(pomodoro_max_count);
     }
   }else{
-    count = 0;
+    //count = 0;
   }
 }
 
@@ -90,15 +93,14 @@ void start_count(){
   old_val = val; //変化を補足するために前のvalを保存
   //stateに応じてLEDを点灯。
   if(state==1){
-    digitalWrite(LED,HIGH);
+    //digitalWrite(LED,HIGH);
     wait = 0;
   }else{
-    digitalWrite(LED,LOW);
+    //digitalWrite(LED,LOW);
     wait = 1;
   }
   return wait;
 }
-
 
 
 // タイマー処理
@@ -107,7 +109,14 @@ void flash (){
   if ( pomodoro_max_count > count ){
     if (wait == 1){
        count += 1;
-       Serial.println(count);
+       dispcount = pomodoro_max_count - count;
+       mm = dispcount / 60 * 100 ;
+       ss = dispcount % 60 ;
+       result = mm + ss ;
+         
+       //Serial.println(result);
+       MFS.write(result/100, 2 );
+       //Serial.println(count);
     } else {
        Serial.println("wait");
     }
