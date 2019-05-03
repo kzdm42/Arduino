@@ -1,0 +1,6 @@
+.pio
+.pioenvs
+.piolibdeps
+.hex
+.elf
+build.txt
