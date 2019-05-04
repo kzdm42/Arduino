@@ -1,7 +1,6 @@
 #include <MsTimer2.h>
 #include <MultiFuncShield.h>
-//const int LED = 12; //LEDをデジタルピン13に接続
-//const int RESET_LED = 13; //LEDをデジタルピン13に接続
+
 const int BUTTON = A1; // ボタンをデジタルピン7に接続
 const int RESET_BUTTON = A3; // ボタンをデジタルピン7に接続
  
@@ -9,10 +8,9 @@ int val = 0; //ボタンの状態
 int old_val = 0; //valの前の値を保存しておく変数
 int state = 0;   // LEDの状態を保存しておく変数
 int wait = 0; 
-int pomodoro_max_count = 90;
+int pomodoro_max_count = 1500;
 
-int rval = 0;
-int rold_val = 0; //valの前の値を保存しておく変数
+int rval = 0; int rold_val = 0; //valの前の値を保存しておく変数
 int rstate = 0;   // LEDの状態を保存しておく変数
 
 int count = 0;
@@ -30,8 +28,11 @@ void digit(){
   Timer1.initialize();
   MFS.initialize(&Timer1);    // initialize multi-function shield library
   
-  MFS.write("Hi");
+  MFS.write("HI");
 }
+
+///
+//////////////////////////
 
 
 
@@ -39,7 +40,8 @@ void digit(){
 //////////////////////////////////////////////
 
 void setup() {
-  //pinMode(LED,OUTPUT); //LED変数は出力に
+  //pinMode(BEEPER_PIN,OUTPUT); //LED変数は出力に
+
   pinMode(BUTTON, INPUT); // ボタン変数は入力に
   Serial.begin(9600);
 
@@ -58,7 +60,7 @@ void reset (){
      //ボタンが押された時に行う処理
      if((rval==1)&&(rold_val==0)){
        rstate = 1 - rstate; //LEDがオンなら1-1でオフ、オフなら1-0でオンに。
-       delay(100); //バウンシング防止（スイッチの半端な接触バグ防止）
+       delay(700); //バウンシング防止（スイッチの半端な接触バグ防止）
      }
 
      rold_val = rval; //変化を補足するために前のvalを保存
@@ -70,12 +72,16 @@ void reset (){
        rval = 0;
        rstate = 1;
  
-      val = 0;
-      old_val = 0;
-      wait = 0;
-      MFS.write(pomodoro_max_count);
+       val = 0;
+       old_val = 0;
+       wait = 0;
+       MFS.write(25.00,2);
+       //tone(BEEPER_PIN, HDO,BEATTIME);
+       //noTone(BEEPER_PIN);
+       //delay(BEATTIME);
     }
   }else{
+    rval = 0;
     //count = 0;
   }
 }
@@ -117,11 +123,11 @@ void flash (){
        //Serial.println(result);
        MFS.write(result/100, 2 );
        //Serial.println(count);
-    } else {
-       Serial.println("wait");
+    //} else {
+       //MFS.write("fin");
     }
   }else{
-  Serial.println("fin");
+      MFS.write("fin");
   }
 }
 
